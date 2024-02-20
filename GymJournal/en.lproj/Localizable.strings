@@ -1,0 +1,71 @@
+/* 
+  Localizable.strings
+  GymJournal
+
+  Created by Никита Суровцев on 15.02.24.
+  
+*/
+
+"settings_title" = "SETTINGS";
+"workouts_title" = "WORKOUTS";
+"nutrition_title" = "NUTRITION";
+
+"add_workout_title" = "Add Workout";
+"edit_workout_button_title" = "Edit Name";
+"delete_workout_button_title" = "Delete";
+"cancel_action_title" = "Cancel";
+"add_button_title" = "Add";
+"save_button_title" = "Save";
+"add_exercise_button_title" = "Add Exercise";
+
+"duplicate_workout_alert_title" = "Workout already exists";
+"duplicate_workout_alert_message" = "A workout with this name already exists";
+"save_workout_error_message" = "Error saving workout";
+
+"get_quote_button_title" = "Push for qoute of the day";
+
+"enter_workout_name_message" = "Put the name";
+"workout_name_placeholder" = "Put the name of workout";
+"workout_already_exists_title" = "Workout Already Exists";
+"workout_already_exists_message" = "A workout with this name already exists";
+
+"save_action" = "Save";
+
+"add_exercise_title" = "Add Exercise";
+"add_exercise_message" = "";
+"exercise_name_placeholder" = "Exercise Name";
+"sets_placeholder" = "Number of Sets";
+"repetitions_placeholder" = "Number of Repetitions";
+"weight_placeholder" = "Weight";
+"add_action_title" = "Add";
+
+"sets_label" = "Sets";
+"repetitions_label" = "Reps";
+"weight_label" = "Weight";
+
+
+"Nutrition Calculator" = "Nutrition Calculator";
+"Your Gender:" = "Your Gender:";
+"Male" = "Male";
+"Female" = "Female";
+"Age:" = "Age:";
+"Height (cm):" = "Height (cm):";
+"Weight (kg):" = "Weight (kg):";
+"Activity Level:" = "Activity Level:";
+"Almost no activity" = "Almost no activity";
+"Low activity" = "Low activity";
+"Moderate activity" = "Moderate activity";
+"High activity" = "High activity";
+"Extreme activity" = "Extreme activity";
+"Goal:" = "Goal:";
+"Calories:" = "Calories:";
+"Proteins:" = "Proteins:";
+"Fats:" = "Fats:";
+"Carbohydrates:" = "Carbohydrates:";
+"Done" = "Done";
+"Lose Weight" = "Lose";
+"Gain Weight" = "Gain";
+"Maintain Weight" = "Maintain";
+"Calculate" = "Calculate";
+
+"Language:" = "Language:";

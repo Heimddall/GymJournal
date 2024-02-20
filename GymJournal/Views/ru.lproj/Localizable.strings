@@ -1,0 +1,72 @@
+/* 
+  Localizable.strings
+  GymJournal
+
+  Created by Никита Суровцев on 15.02.24.
+  
+*/
+
+"settings_title" = "НАСТРОЙКИ";
+"workouts_title" = "ТРЕНИРОВКИ";
+"nutrition_title" = "ПИТАНИЕ";
+
+"edit_workout_button_title" = "Редактировать имя";
+"delete_workout_button_title" = "Удалить";
+"cancel_action_title" = "Отмена";
+"add_button_title" = "Добавить";
+"save_button_title" = "Сохранить";
+"add_exercise_button_title" = "Добавить упражнение";
+
+"duplicate_workout_alert_title" = "Тренировка уже существует";
+"duplicate_workout_alert_message" = "Тренировка с таким именем уже добавлена";
+"save_workout_error_message" = "Ошибка сохранения тренировки";
+
+"get_quote_button_title" = "Получить цитату дня";
+
+"add_workout_title" = "Добавить тренировку";
+"enter_workout_name_message" = "Введите название";
+"workout_name_placeholder" = "Название тренировки";
+"workout_already_exists_title" = "Тренировка уже существует";
+"workout_already_exists_message" = "Тренировка с таким именем уже добавлена";
+
+"save_action" = "Сохранить";
+
+"add_exercise_title" = "Добавить упражнение";
+"add_exercise_message" = "";
+"exercise_name_placeholder" = "Название упражнения";
+"sets_placeholder" = "Количество подходов";
+"repetitions_placeholder" = "Количество повторений";
+"weight_placeholder" = "Вес";
+"add_action_title" = "Добавить";
+
+"sets_label" = "Подх.";
+"repetitions_label" = "Повт.";
+"weight_label" = "Вес";
+
+
+"Nutrition Calculator" = "Калькулятор КБЖУ";
+"Your Gender:" = "Ваш пол:";
+"Male" = "Мужской";
+"Female" = "Женский";
+"Age:" = "Возраст:";
+"Height (cm):" = "Рост (см):";
+"Weight (kg):" = "Вес (кг):";
+"Activity Level:" = "Уровень активности:";
+"Almost no activity" = "Почти нет активности";
+"Low activity" = "Низкая активность";
+"Moderate activity" = "Умеренная активность";
+"High activity" = "Высокая активность";
+"Extreme activity" = "Экстремальная активность";
+"Goal:" = "Цель:";
+"Calories:" = "Калории:";
+"Proteins:" = "Белки:";
+"Fats:" = "Жиры:";
+"Carbohydrates:" = "Углеводы:";
+"Done" = "Готово";
+"Lose Weight" = "Сбросить";
+"Gain Weight" = "Набрать";
+"Maintain Weight" = "Поддержать";
+"Calculate" = "Рассчитать";
+
+"Language:" = "Выбор языка:";
+
