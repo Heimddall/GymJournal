@@ -1,9 +1,4 @@
-//
-//  LogInViewController.swift
-//  GymJournal
-//
-//  Created by Никита Суровцев on 6.12.23.
-//
+
 
 import UIKit
 import Lottie

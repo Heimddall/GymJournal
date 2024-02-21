@@ -7,12 +7,13 @@ class Exercise: Object {
     @Persisted var sets: Int = 0
     @Persisted var repetitions: Int = 0
     @Persisted var weight: Double = 0.0
+    @Persisted var workout: Workout?
 }
 
 class Workout: Object {
     @Persisted(primaryKey: true) var objectId = ObjectId.generate()
     @Persisted var name: String = ""
-    var exercises = List<Exercise>()
+    @Persisted var exercises = List<Exercise>()
     
     convenience init(name: String) {
         self.init()
@@ -20,20 +21,14 @@ class Workout: Object {
     }
     
     func addExercise(_ exercise: Exercise) {
-        guard let realm = realm else { return }
-
-            do {
-                if realm.isInWriteTransaction {
-                    exercises.append(exercise)
-                } else {
-                    try realm.write {
-                        exercises.append(exercise)
-                        realm.add(exercise)
-                    }
-                }
-            } catch {
-                print("Ошибка при добавлении упражнения к тренировке: \(error)")
+        do {
+            try realm?.write {
+                exercises.append(exercise)
+                realm?.add(self, update: .modified) // Обновляем объект тренировки в базе данных
             }
+        } catch {
+            print("Ошибка при добавлении упражнения к тренировке: \(error)")
         }
+    }
 }
 

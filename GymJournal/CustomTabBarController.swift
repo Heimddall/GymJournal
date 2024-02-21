@@ -1,9 +1,3 @@
-//
-//  CustomTabBarController.swift
-//  GymJournal
-//
-//  Created by Никита Суровцев on 20.02.24.
-//
 
 import Foundation
 import UIKit

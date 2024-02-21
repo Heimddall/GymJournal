@@ -9,10 +9,6 @@ import UIKit
 import RealmSwift
 import Realm
 
-protocol ExerciseDelegate: AnyObject {
-    func didAddExercisesToWorkout(_ workout: Workout, exercises: List<Exercise>)
-}
-
 class ExercisesViewController: UIViewController {
     
     @IBOutlet weak var workoutLabel: UILabel!
@@ -22,12 +18,11 @@ class ExercisesViewController: UIViewController {
     
     var workout: Workout?
     var exercises: List<Exercise>?
-    weak var delegate: ExerciseDelegate?
     var realm: Realm?
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        realm = DatabaseManager.shared.realm
         
         self.tableView.dataSource = self
         self.tableView.delegate = self
@@ -35,53 +30,27 @@ class ExercisesViewController: UIViewController {
         guard let workout = workout else {
             return
         }
-        
-        if realm == nil {
-            realm = try? Realm()
-        }
+        exercises = workout.exercises
+        print("Exercises for the current workout:", exercises ?? "No exercises")
         
         tableView.register(UINib(nibName: "ExerciseTableViewCell", bundle: nil), forCellReuseIdentifier: "ExerciseTableViewCell")
+    
+        workoutLabel.text = workout.name
         
-        exercises = workout.exercises
-        
-        
+        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress))
+        tableView.addGestureRecognizer(longPressGesture)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        exercises = workout?.exercises
-        
-        if let workoutName = workout?.name {
-            workoutLabel.text = workoutName
+        if let workout = workout {
+            exercises = workout.exercises
+            tableView.reloadData()
         }
-        
-        if let count = exercises?.count {
-            print("Number of exercises: \(count)")
-        } else {
-            print("No exercises found")
-        }
-        
-        guard let workout = workout, let realm = realm else {
-            return
-        }
-        
-        do {
-            try realm.write {
-                for exercise in workout.exercises {
-                    if realm.object(ofType: Exercise.self, forPrimaryKey: exercise.objectId) == nil {
-                        realm.add(exercise)
-                    }
-                }
-                
-                exercises = workout.exercises
-            }
-        } catch {
-            print("Error accessing Realm: \(error)")
-        }
-        
-        tableView.reloadData()
     }
+    
+    
     
     
     @IBAction func addExerciseButtonTapped(_ sender: Any) {
@@ -131,8 +100,10 @@ class ExercisesViewController: UIViewController {
             newExercise.sets = sets
             newExercise.repetitions = repetitions
             newExercise.weight = weight
-            workout.addExercise(newExercise)
+            newExercise.workout = workout
             
+            workout.addExercise(newExercise)
+            self?.exercises = workout.exercises
             self?.tableView.reloadData()
             
         }
@@ -148,7 +119,22 @@ class ExercisesViewController: UIViewController {
     }
     
     func configureCell(_ cell: ExerciseTableViewCell, with exercise: Exercise) {
-        cell.exerciseLabel.text = exercise.name
+        let maximumLabelWidth: CGFloat = 160
+        let labelFont = UIFont.systemFont(ofSize: 17)
+        
+        let exerciseName = exercise.name
+        cell.exerciseLabel.text = exerciseName
+        
+        let labelSize = exerciseName.size(withAttributes: [.font: labelFont])
+        if labelSize.width > maximumLabelWidth {
+            let availableWidth = maximumLabelWidth - 30 // Учитываем отступы
+            let numberOfCharsToShow = Int((availableWidth / labelSize.width) * CGFloat(exerciseName.count))
+            
+            let truncatedName = String(exerciseName.prefix(numberOfCharsToShow)) + "..."
+            cell.exerciseLabel.text = truncatedName
+        } else {
+            cell.exerciseLabel.text = exerciseName
+        }
         let setsText = NSLocalizedString("sets_label", comment: "")
         cell.setLabel.text = "\(setsText): \(exercise.sets)"
         
@@ -162,48 +148,150 @@ class ExercisesViewController: UIViewController {
     @IBAction func saveChanges(_ sender: Any) {
         guard let workout = workout else { return }
         guard let realm = realm else { return }
-        
+
         do {
             if !realm.isInWriteTransaction {
                 realm.beginWrite()
             }
-            
+
             for exercise in workout.exercises {
                 realm.add(exercise, update: .modified)
             }
-            
+
             realm.add(workout, update: .modified)
-            
+
             if realm.isInWriteTransaction {
                 try realm.commitWrite()
             }
-            
+
             print("Exercises saved successfully:", workout.exercises)
             for exercise in workout.exercises {
                 print("Exercise name:", exercise.name)
             }
-            
-            onSaveExercises?(workout.exercises )
 
-            delegate?.didAddExercisesToWorkout(workout, exercises: exercises!)
+            onSaveExercises?(workout.exercises)
+
             navigationController?.popViewController(animated: true)
         } catch {
+            // В случае ошибки откатываем транзакцию записи
             if realm.isInWriteTransaction {
                 realm.cancelWrite()
             }
             print("Ошибка при сохранении тренировки: \(error)")
         }
-        saveWorkout(workout)
+        
     }
     
-    func saveWorkout(_ workout: Workout) {
+    @objc func handleLongPress(sender: UILongPressGestureRecognizer) {
+        if sender.state == .began {
+            let touchPoint = sender.location(in: tableView)
+            if let indexPath = tableView.indexPathForRow(at: touchPoint) {
+                // Определите, какое упражнение было нажато
+                let selectedExercise = exercises?[indexPath.row]
+                
+                // Создайте действия, которые вы хотите выполнить при долгом нажатии
+                let editAction = UIAlertAction(title: "Edit", style: .default) { [weak self] _ in
+                    // Редактирование упражнения
+                    self?.editExercise(selectedExercise)
+                }
+                let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { [weak self] _ in
+                    // Удаление упражнения
+                    self?.deleteExercise(at: indexPath)
+                }
+                
+                // Создайте и отобразите контекстное меню
+                let alertController = UIAlertController(title: "Exercise Options", message: nil, preferredStyle: .actionSheet)
+                alertController.addAction(editAction)
+                alertController.addAction(deleteAction)
+                present(alertController, animated: true)
+            }
+        }
+    }
+    
+    func editExercise(_ exercise: Exercise?) {
+        guard let exercise = exercise else { return }
+        
+        let alertControllerTitle = NSLocalizedString("edit_exercise_title", comment: "")
+        let alertControllerMessage = NSLocalizedString("edit_exercise_message", comment: "")
+        
+        let alertController = UIAlertController(title: alertControllerTitle, message: alertControllerMessage, preferredStyle: .alert)
+        
+        let exerciseNamePlaceholder = NSLocalizedString("exercise_name_placeholder", comment: "")
+        let setsPlaceholder = NSLocalizedString("sets_placeholder", comment: "")
+        let repetitionsPlaceholder = NSLocalizedString("repetitions_placeholder", comment: "")
+        let weightPlaceholder = NSLocalizedString("weight_placeholder", comment: "")
+        
+        alertController.addTextField { textField in
+            textField.placeholder = exerciseNamePlaceholder
+            textField.text = exercise.name
+        }
+        
+        alertController.addTextField { textField in
+            textField.placeholder = setsPlaceholder
+            textField.keyboardType = .numberPad
+            textField.text = "\(exercise.sets)"
+        }
+        
+        alertController.addTextField { textField in
+            textField.placeholder = repetitionsPlaceholder
+            textField.keyboardType = .numberPad
+            textField.text = "\(exercise.repetitions)"
+        }
+        
+        alertController.addTextField { textField in
+            textField.placeholder = weightPlaceholder
+            textField.keyboardType = .decimalPad
+            textField.text = "\(exercise.weight)"
+        }
+        
+        let addActionTitle = NSLocalizedString("save_action_title", comment: "")
+        let addAction = UIAlertAction(title: addActionTitle, style: .default) { [weak self] _ in
+            guard let name = alertController.textFields?[0].text, !name.isEmpty,
+                  let setsText = alertController.textFields?[1].text, !setsText.isEmpty,
+                  let repetitionsText = alertController.textFields?[2].text, !repetitionsText.isEmpty,
+                  let weightText = alertController.textFields?[3].text, !weightText.isEmpty,
+                  let sets = Int(setsText), let repetitions = Int(repetitionsText),
+                  let weight = Double(weightText)
+            else { return }
+            
+            // Обновление упражнения
+            self?.updateExercise(exercise, with: name, sets: sets, repetitions: repetitions, weight: weight)
+        }
+        
+        let cancelAction = UIAlertAction(title: NSLocalizedString("cancel_action_title", comment: ""), style: .cancel)
+        
+        alertController.addAction(addAction)
+        alertController.addAction(cancelAction)
+        
+        present(alertController, animated: true)
+    }
+
+    func updateExercise(_ exercise: Exercise, with name: String, sets: Int, repetitions: Int, weight: Double) {
         guard let realm = realm else { return }
+        
         do {
             try realm.write {
-                realm.add(workout, update: .modified)
+                exercise.name = name
+                exercise.sets = sets
+                exercise.repetitions = repetitions
+                exercise.weight = weight
+                tableView.reloadData()
             }
         } catch {
-            print("Error saving workout: \(error)")
+            print("Error updating exercise: \(error)")
+        }
+    }
+    
+    func deleteExercise(at indexPath: IndexPath) {
+        guard let realm = realm, let exerciseToDelete = exercises?[indexPath.row] else { return }
+        
+        do {
+            try realm.write {
+                realm.delete(exerciseToDelete)
+                tableView.reloadData()
+            }
+        } catch {
+            print("Error deleting exercise: \(error)")
         }
     }
 }
@@ -215,19 +303,40 @@ extension ExercisesViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: "ExerciseTableViewCell", for: indexPath) as? ExerciseTableViewCell else {return UITableViewCell()}
-        
-        guard let exercise = exercises?[indexPath.row] else { return UITableViewCell() }
-        configureCell(cell, with: exercise)
-        
-        
-        DispatchQueue.main.async {
-            print(cell.exerciseLabel.text ?? "Exercise label is empty")
-            print(cell.setLabel.text ?? "Set label is empty")
-            print(cell.repetitionLabel.text ?? "Repetition label is empty")
-            print(cell.weightLabel.text ?? "Weight label is empty")
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "ExerciseTableViewCell", for: indexPath) as? ExerciseTableViewCell else {
+            fatalError("Failed to dequeue ExerciseTableViewCell")
         }
+        
+        guard let exercises = exercises, indexPath.row < exercises.count else {
+            print("Invalid index or empty exercises list")
+            return cell
+        }
+        
+        let exercise = exercises[indexPath.row]
+        configureCell(cell, with: exercise)
         
         return cell
     }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+            guard let exercise = exercises?[indexPath.row] else {
+                return
+            }
+            
+        let alertController = UIAlertController(title: NSLocalizedString("exercise_information_title", comment: ""), message: nil, preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: NSLocalizedString("ok_button_title", comment: ""), style: .default, handler: nil))
+
+        let setsText = NSLocalizedString("sets_label", comment: "")
+        let repetitionsText = NSLocalizedString("repetitions_label", comment: "")
+        let weightText = NSLocalizedString("weight_label", comment: "")
+
+        let exerciseInfo = NSLocalizedString("exercise_info_format", comment: "")
+        let formattedMessage = String(format: exerciseInfo, exercise.name, setsText, exercise.sets, repetitionsText, exercise.repetitions, weightText, exercise.weight)
+
+        alertController.message = formattedMessage
+            
+            present(alertController, animated: true, completion: nil)
+            
+            tableView.deselectRow(at: indexPath, animated: true)
+        }
 }

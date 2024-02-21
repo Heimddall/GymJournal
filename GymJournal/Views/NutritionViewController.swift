@@ -87,16 +87,13 @@ class NutritionViewController: UIViewController, UIPickerViewDelegate, UIPickerV
     }
     
     func calculateNutrition() {
-        print("Start calculateNutrition")
         guard let ageText = ageTextField.text,
               let heightText = heightTextField.text,
               let weightText = weightTextField.text,
               let lifestyleText = lifestyleTextField.text,
               let gender = genderSegment.titleForSegment(at: genderSegment.selectedSegmentIndex)
         else {
-            print("Failed to get input values")
             return
-            print("End calculateNutrition")
         }
         
         print("Got input values: Age: \(ageText), Height: \(heightText), Weight: \(weightText), Lifestyle: \(lifestyleText), Gender: \(gender)")
@@ -104,7 +101,6 @@ class NutritionViewController: UIViewController, UIPickerViewDelegate, UIPickerV
         guard let age = Double(ageText),
               let height = Double(heightText),
               let weight = Double(weightText)
-                //              let lifestyle = Double(lifestyleText)
         else {
             print("Failed to convert input values to Double")
             return

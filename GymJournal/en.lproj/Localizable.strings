@@ -69,3 +69,16 @@
 "Calculate" = "Calculate";
 
 "Language:" = "Language:";
+
+"edit_exercise_title" = "Edit Exercise";
+"edit_exercise_message" = "Edit the exercise details:";
+"save_action_title" = "Save";
+"exercise_name_placeholder" = "Exercise Name";
+"sets_placeholder" = "Sets";
+"repetitions_placeholder" = "Repetitions";
+"weight_placeholder" = "Weight";
+"cancel_action_title" = "Cancel";
+
+"exercise_information_title" = "Exercise Information";
+"ok_button_title" = "OK";
+"exercise_info_format" = "%@ \n %@: %d \n %@: %d \n %@: %.1f";

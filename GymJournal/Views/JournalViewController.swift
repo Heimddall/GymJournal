@@ -1,14 +1,9 @@
-//
-//  JournalViewController.swift
-//  GymJournal
-//
-//  Created by Никита Суровцев on 30.11.23.
-//
+
 
 import UIKit
 import RealmSwift
 
-class JournalViewController: UIViewController, ExerciseDelegate {
+class JournalViewController: UIViewController {
     
     private var workoutViewModel: WorkoutViewModel!
     var realm: Realm!
@@ -39,7 +34,14 @@ class JournalViewController: UIViewController, ExerciseDelegate {
     }
     
     override func viewWillAppear(_ animated: Bool) {
+            let exercises = realm.objects(Exercise.self)
+
+            for exercise in exercises {
+                print("Exercise name: \(exercise.name), Sets: \(exercise.sets), Repetitions: \(exercise.repetitions), Weight: \(exercise.weight)")
+            }
+        
         print(workouts ?? 0)
+        reloadWorkouts()
     }
     
     @IBAction func addWorkoutButtonTapped(_ sender: Any) {
@@ -91,41 +93,16 @@ class JournalViewController: UIViewController, ExerciseDelegate {
     func showExercises(for workout: Workout) {
         let exercisesVC = ExercisesViewController(nibName: "ExercisesViewController", bundle: nil)
             exercisesVC.workout = workout
-        exercisesVC.onSaveExercises = { [weak self] exercises in
-                self?.didAddExercisesToWorkout(workout, exercises: exercises)
-            }
-            exercisesVC.exercises = workout.exercises
-            exercisesVC.delegate = self
             exercisesVC.realm = realm
             navigationController?.pushViewController(exercisesVC, animated: true)
         
     }
     
     
-    func didAddExercisesToWorkout(_ workout: Workout, exercises: List<Exercise>) {
-        guard let realm = realm else { return }
-
-            do {
-                try realm.write {
-                    if let existingWorkout = realm.objects(Workout.self).filter("name == %@", workout.name).first {
-                        existingWorkout.exercises.removeAll()
-                        existingWorkout.exercises.append(objectsIn: exercises)
-                    } else {
-                        realm.add(workout)
-                        workout.exercises.append(objectsIn: exercises)
-                    }
-                }
-                reloadWorkouts()
-            } catch {
-                print("Ошибка сохранения тренировки: \(error)")
-            }
-        saveWorkout(workout)
-    }
-    
-    func saveWorkout(_ workout: Workout) {
+  private func saveWorkout(_ workout: Workout) {
         do {
             try realm.write {
-                realm.add(workout)
+                realm.add(workout, update: .modified)
             }
         } catch {
             print("Ошибка сохранения тренировки: \(error)")
@@ -200,7 +177,6 @@ class JournalViewController: UIViewController, ExerciseDelegate {
            let saveActionTitle = NSLocalizedString("save_action", comment: "")
            let saveAction = UIAlertAction(title: saveActionTitle, style: .default) { [weak self] _ in
                guard let newName = alertController.textFields?.first?.text, !newName.isEmpty else {
-                   // Пустое имя, обработайте по вашему усмотрению
                    return
                }
 

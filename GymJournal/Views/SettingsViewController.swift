@@ -36,8 +36,6 @@ class SettingsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        print(UserDefaults.standard.string(forKey: "AppLanguages"), "из вьюдидлоад")
-        
         languageLabel.text = NSLocalizedString("Language:", comment: "")
         
         if let appLanguage = UserDefaults.standard.string(forKey: "AppLanguages") {
@@ -59,16 +57,13 @@ class SettingsViewController: UIViewController {
         let selectedLanguage: String
             switch sender.selectedSegmentIndex {
             case 0:
-                // Выбрана русская локализация
                 selectedLanguage = "ru"
             case 1:
-                // Выбрана английская локализация
                 selectedLanguage = "en"
             default:
                 return
             }
             
-            // Сохраняем выбранный язык в UserDefaults
             UserDefaults.standard.set(selectedLanguage, forKey: "AppLanguages")
         localizationDelegate?.updateLocalization()
     }

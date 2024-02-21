@@ -70,3 +70,15 @@
 
 "Language:" = "Выбор языка:";
 
+"edit_exercise_title" = "Редактировать упражнение";
+"edit_exercise_message" = "Измените детали упражнения:";
+"save_action_title" = "Сохранить";
+"exercise_name_placeholder" = "Название упражнения";
+"sets_placeholder" = "Подходы";
+"repetitions_placeholder" = "Повторения";
+"weight_placeholder" = "Вес";
+"cancel_action_title" = "Отмена";
+
+"exercise_information_title" = "Информация об упражнении";
+"ok_button_title" = "ОК";
+"exercise_info_format" = "%@ \n %@: %d \n %@: %d \n %@: %.1f";

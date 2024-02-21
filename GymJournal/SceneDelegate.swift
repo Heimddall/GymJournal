@@ -1,9 +1,3 @@
-//
-//  SceneDelegate.swift
-//  GymJournal
-//
-//  Created by Никита Суровцев on 26.11.23.
-//
 
 import UIKit
 
