@@ -14,8 +14,6 @@ class ExercisesViewController: UIViewController {
     @IBOutlet weak var workoutLabel: UILabel!
     @IBOutlet weak var tableView: UITableView!
     
-    var onSaveExercises: ((List<Exercise>) -> Void)?
-    
     var workout: Workout?
     var exercises: List<Exercise>?
     var realm: Realm?
@@ -49,9 +47,6 @@ class ExercisesViewController: UIViewController {
             tableView.reloadData()
         }
     }
-    
-    
-    
     
     @IBAction func addExerciseButtonTapped(_ sender: Any) {
         guard let workout = workout else { return }
@@ -105,17 +100,13 @@ class ExercisesViewController: UIViewController {
             workout.addExercise(newExercise)
             self?.exercises = workout.exercises
             self?.tableView.reloadData()
-            
         }
         
         
         let cancelAction = UIAlertAction(title: NSLocalizedString("cancel_action_title", comment: ""), style: .cancel)
-        
         alertController.addAction(addAction)
         alertController.addAction(cancelAction)
-        
         present(alertController, animated: true)
-        
     }
     
     func configureCell(_ cell: ExerciseTableViewCell, with exercise: Exercise) {
@@ -127,7 +118,7 @@ class ExercisesViewController: UIViewController {
         
         let labelSize = exerciseName.size(withAttributes: [.font: labelFont])
         if labelSize.width > maximumLabelWidth {
-            let availableWidth = maximumLabelWidth - 30 // Учитываем отступы
+            let availableWidth = maximumLabelWidth - 30
             let numberOfCharsToShow = Int((availableWidth / labelSize.width) * CGFloat(exerciseName.count))
             
             let truncatedName = String(exerciseName.prefix(numberOfCharsToShow)) + "..."
@@ -169,11 +160,8 @@ class ExercisesViewController: UIViewController {
                 print("Exercise name:", exercise.name)
             }
 
-            onSaveExercises?(workout.exercises)
-
             navigationController?.popViewController(animated: true)
         } catch {
-            // В случае ошибки откатываем транзакцию записи
             if realm.isInWriteTransaction {
                 realm.cancelWrite()
             }
@@ -186,20 +174,15 @@ class ExercisesViewController: UIViewController {
         if sender.state == .began {
             let touchPoint = sender.location(in: tableView)
             if let indexPath = tableView.indexPathForRow(at: touchPoint) {
-                // Определите, какое упражнение было нажато
                 let selectedExercise = exercises?[indexPath.row]
                 
-                // Создайте действия, которые вы хотите выполнить при долгом нажатии
                 let editAction = UIAlertAction(title: "Edit", style: .default) { [weak self] _ in
-                    // Редактирование упражнения
                     self?.editExercise(selectedExercise)
                 }
                 let deleteAction = UIAlertAction(title: "Delete", style: .destructive) { [weak self] _ in
-                    // Удаление упражнения
                     self?.deleteExercise(at: indexPath)
                 }
                 
-                // Создайте и отобразите контекстное меню
                 let alertController = UIAlertController(title: "Exercise Options", message: nil, preferredStyle: .actionSheet)
                 alertController.addAction(editAction)
                 alertController.addAction(deleteAction)
@@ -254,7 +237,6 @@ class ExercisesViewController: UIViewController {
                   let weight = Double(weightText)
             else { return }
             
-            // Обновление упражнения
             self?.updateExercise(exercise, with: name, sets: sets, repetitions: repetitions, weight: weight)
         }
         

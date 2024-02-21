@@ -24,7 +24,7 @@ class Workout: Object {
         do {
             try realm?.write {
                 exercises.append(exercise)
-                realm?.add(self, update: .modified) // Обновляем объект тренировки в базе данных
+                realm?.add(self, update: .modified)
             }
         } catch {
             print("Ошибка при добавлении упражнения к тренировке: \(error)")
